@@ -11,8 +11,9 @@ var spacial = new SpatialShip(100, 30, 1, (canvas.width / 2) - (100 / 2), canvas
 
 //Repartion des cubes sur la map en fonction des manches
 var manche = 0;
-var TabNbCubeByManche = [20, 30];
-var TabNbLineByManche = [3, 5];
+var TabNbCubeByManche = [30, 40, 100, 160, 300];
+var TabNbLineByManche = [3, 4, 5, 8, 10];
+var TabSpeedAttackSpacial = [100, 75, 50, 25, 0];
 function repartitionCubeOnMap(widthCube, heightCube) {
     tabPosition = Array();
 
@@ -34,17 +35,10 @@ function repartitionCubeOnMap(widthCube, heightCube) {
 //Action on click keydown
 $("body").keydown(function (e) { 
     var keyCode = e.keyCode;
-    console.log(keyCode);
     if (keyCode == 37)
         direction = "L";
     if (keyCode == 39)
         direction = "R";
-    if (keyCode == 32) {
-        if(cooldownProjectil > 50) {
-            cooldownProjectil = 0;
-            spacial.setTabProjectil(new Projectil(10, 10, (spacial.posX + (spacial.width / 2)), spacial.posY - 10, 1.5, 1, "white"));
-        }
-    }
 });
 
 
@@ -60,11 +54,17 @@ function play() {
             position = cube.split(';');
             posX = position[0];
             posY = position[1];
-            tabOjectCube.push(new Cube(40, 30 , posX, posY, 0.1, 1, 1, "#0095DD"));
+            tabOjectCube.push(new Cube(40, 30 , posX, posY, 0.1, 1, manche + 1));
         });
     } else { // Play the manche
+        //Projectil
+        if(cooldownProjectil > TabSpeedAttackSpacial[manche]) {
+            cooldownProjectil = 0;
+            spacial.setTabProjectil(new Projectil(10, 10, (spacial.posX + (spacial.width / 2)), spacial.posY - 10, 1.5, 1, "white"));
+        }
+
         //Show cubes
-        if (cooldownCubeBottom > 2000) {
+        if (cooldownCubeBottom > 3000) {
             cubeBottom = true;
             cooldownCubeBottom = 0;
         } else {
@@ -76,6 +76,7 @@ function play() {
             ctx.fillStyle = cube.color;
             ctx.fill();
             ctx.closePath();
+            cube.colorUpdate();
             cube.moveLeftRight();
             if (cubeBottom)
                 cube.moveBottom(ecartCube);
@@ -90,22 +91,34 @@ function play() {
         spacial.move(direction);
         direction = spacial.borderMapGame(canvas.width, direction);
         //Show spacialShip projectil
-        (spacial.getTabProjectil()).forEach(projectil => {
+        (spacial.getTabProjectil()).forEach(function(projectil, indexProjectil) {
             ctx.beginPath();
             ctx.arc(projectil.posX, projectil.posY, projectil.width, 0, 5 * Math.PI);       
             ctx.fillStyle = projectil.color;
             ctx.fill();
             projectil.move();
-            //Projectil touche cube
-            /*tabOjectCube.forEach(cube => {
-                ctx.beginPath();
-                ctx.rect(cube.posX, cube.posY, cube.width, cube.height);
-                ctx.fillStyle = cube.color;
-                ctx.fill();
-                ctx.closePath();
-                
-            });*/
+            //Projectil touch border map
+            if (projectil.posY <= 0)
+                spacial.removeTabProjectil(indexProjectil);
+            //Projectil touch cube
+            tabOjectCube.forEach(function(cube, indexCube) {
+                if (((parseInt(projectil.posX) + parseInt(projectil.width) >= cube.posX) && (parseInt(projectil.posX) - parseInt(projectil.width) <= (parseInt(cube.posX) + parseInt(cube.width)))) 
+                && (projectil.posY >= cube.posY && (parseInt(projectil.posY) - parseInt(projectil.height) <= (parseInt(cube.posY) + parseInt(cube.height))))) {
+                    //Remove projectil
+                    spacial.removeTabProjectil(indexProjectil);
+                    //Remove cube
+                    if (cube.life > 1) {
+                        cube.life--;
+                    } else {
+                        (tabOjectCube).splice(indexCube, 1);
+                    }
+                }
+            });
         });
+
+        //Next Manche
+        if(tabOjectCube.length == 0)
+            manche++;
     }
 
     cooldownProjectil++;

@@ -21,7 +21,4 @@ class Projectil
     move() {
         this.posY -= this.speed;
     }
-
-    touchCube(cubeX, cubeY, cubeWidth, cubeHeigth) {
-    }
 }

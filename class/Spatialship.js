@@ -22,6 +22,10 @@ class SpatialShip
         (this.tabProjectil).push(ObjectProjectil);
     }
 
+    removeTabProjectil(index) {
+        (this.tabProjectil).splice(index, 1);
+    }
+
     getTabProjectil() {
         return this.tabProjectil;
     }

@@ -11,7 +11,7 @@ class Cube
     #color;
     #direction;
 
-    constructor(width, height, posX, posY, speed, attack, life, color) {
+    constructor(width, height, posX, posY, speed, attack, life) {
         this.width = width;
         this.height = height;
         this.posXSave = posX;
@@ -20,7 +20,7 @@ class Cube
         this.speed = speed;
         this.attack = attack;
         this.life = life;
-        this.color = color;
+        this.color = "black";
         this.direction = "R";
     }
 
@@ -37,5 +37,16 @@ class Cube
 
     moveBottom(ecartCube) {
         this.posY = parseInt(this.posY) + parseInt(this.height) + parseInt(ecartCube);
+    }
+
+    colorUpdate() {
+        if (this.life == 1)
+            this.color = "#3BAFE9";
+        if (this.life == 2)
+            this.color = "#18526F";
+        if (this.life == 3)
+            this.color = "#D23030";
+        if (this.life == 4)
+            this.color = "#7B1717";
     }
 }
