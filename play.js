@@ -41,7 +41,6 @@ $("body").keydown(function (e) {
         direction = "R";
 });
 
-
 function play() {
     //Refresh canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
